@@ -2,7 +2,7 @@
  * CS:APP Data Lab 
  * 
  * <Please put your name and userid here>
- * 黄伟焊 21215150503
+ * 
  * bits.c - Source file with your solutions to the Lab.
  *          This is the file you will hand in to your instructor.
  *
@@ -196,7 +196,7 @@ int negate(int x) {
  *   Max ops: 3
  *   Rating: 1
  */
-int specialBits(void) { 
+int specialBits(void) { // TODO
 //  1111 1111 1100 1010 0011 1111 1111 1111
     // return ~(0xd7 << 14);
     int ans = 0xd7 << 14;
@@ -211,11 +211,24 @@ int specialBits(void) {
  *  Rating: 1
  
  */
-int upperBits(int n) {                        
+int upperBits(int n) {  
+  // 拿到无符号位最大值, 在位移n位，然后取反。 (错误  没考虑0的情况)
+  // 0000 0000 0000 0000 0000 0000 0000 0000
+  //                      
   int temp = !n;
   int num = ~temp + 1;              
   int max = 1 << 31;
   return ~num & (max >> (n+(~0)));  
+  // n = 2
+  // 0 0 1 0
+  // 0 0 0 0
+  // 0 0 0 0
+  // 1 1 1 1    1 0 0 0      0 0 0 0 + 1 1 1 1 = 0 0 0 1
+  // 1 1 1 1    1 1 0 0
+  // 1 1 0 0 
+  // int a = !n;
+  // int b = ~a + 1;
+  // return ~b & ((1<<31) >> (n+(~0)));
 }
 /* 
  * bitMatch - Create mask indicating which bits in x match those in y
@@ -226,6 +239,11 @@ int upperBits(int n) {
  *   Rating: 1
  */
 int bitMatch(int x, int y) { // TODO
+  // 相同为1  不同为0
+  // int t1 = ~(~x&y);
+  // int t2 = ~(x&~y);
+  // int t3 = t1 & t2;
+  // return t3;
   return (~(~x&y)) & (~(x & (~y)));
 }
 /* 
@@ -236,6 +254,7 @@ int bitMatch(int x, int y) { // TODO
  *   Rating: 1
  */
 int bitOr(int x, int y) {
+  // 模拟或运算
   return ~((~x) & (~y));
 }
 /* 
@@ -247,6 +266,9 @@ int bitOr(int x, int y) {
  *   Rating: 4
  */
 int absVal(int x) { 
+  // 1 0 1 0 ^ 1 1 1 1 + 1 1 1 1  & 0 0 0 1
+  // 0 1 0 1 + 0 0 0 1
+  // 0 1 1 0
   return (x^(x>>31))+((x>>31)&1);
 }
 /* 
@@ -258,6 +280,9 @@ int absVal(int x) {
  *   Rating: 4 
  */
 int logicalNeg(int x) {
+  // ~x + 1  取补码
+  // 0的补码是0
+  // 最小数得补码也是本身
   return ((x | (~x+1)) >> 31) + 1;   
 }
 /*
@@ -267,8 +292,12 @@ int logicalNeg(int x) {
  *   Max ops: 20
  *   Rating: 4
  */
-int bitParity(int x) { 
-    x ^= x>>16;
+int bitParity(int x) { // TODO 如果x中包含奇数个0，则返回1；否则返回0。
+// 1 0 1 0 1 0 1 0 
+// 0 0 0 0 1 0 1 0
+// 0 0 0 0 0 0 1 0
+// 0 0 0 0 0 0 0 1
+  x ^= x>>16;
 	x ^= x>>8;
 	x ^= x>>4;
 	x ^= x>>2;
@@ -285,7 +314,10 @@ int bitParity(int x) {
  *  Rating: 2
  */
 int byteSwap(int x, int n, int m) { // TODO
-  int x1 = (x >> (n<<3)) & 0xff;
+  // 0001 0010 0011 0100 0101 0110 0111 1000
+  // 1    2    3    4    5    6    7    8
+  //                               1111 1111
+	int x1 = (x >> (n<<3)) & 0xff;
   int x2 = (x >> (m<<3)) & 0xff;
   int xor = x1 ^ x2;
   xor = (xor << (n<<3)) | (xor << (m<<3));
@@ -311,7 +343,7 @@ int getByte(int x, int n) {
  *   Rating: 3
  */
 int isGreater(int x, int y) { 
-    int sign_ = ((~x&y)>>31)&1;
+  int sign_ = ((~x&y)>>31)&1;
 	int mark_ = ~((x^y)>>31);
 	int equl_ = !!(x^y);
   return sign_ | ((mark_)&(~(x+~y+1))>>31&equl_);
@@ -358,7 +390,7 @@ int addOK(int x, int y) {
  *   Rating: 3
  */
 int subtractionOK(int x, int y) {
-    int res = x + (~y + 1);
+  int res = x + (~y + 1);
 	int sameSign = x ^ y;
 	int resSign = res ^ x;
 	return !((sameSign & resSign) >> 31);
