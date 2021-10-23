@@ -178,7 +178,7 @@ NOTES:
  *   Rating: 1
  */
 int isZero(int x) { 
-  return !(x|0);
+    return !x;
 }
 /* 
  * negate - return -x 
@@ -188,7 +188,7 @@ int isZero(int x) {
  *   Rating: 2
  */
 int negate(int x) {
-  return  (~x) + 1;
+    return  ~x + 1;
 }
 /* 
  * specialBits - return bit pattern 0xffca3fff
@@ -196,9 +196,11 @@ int negate(int x) {
  *   Max ops: 3
  *   Rating: 1
  */
-int specialBits(void) { 
+int specialBits(void) {
+//0xf   f     c    a    3    f    f    f
 //  1111 1111 1100 1010 0011 1111 1111 1111
-    // return ~(0xd7 << 14);
+// return ~(0xd7 << 14);
+// 或者直接 return 0xffca3fff;
     int ans = 0xd7 << 14;
     return ~ans;
 }
@@ -211,11 +213,11 @@ int specialBits(void) {
  *  Rating: 1
  
  */
-int upperBits(int n) {                        
-  int temp = !n;
-  int num = ~temp + 1;              
-  int max = 1 << 31;
-  return ~num & (max >> (n+(~0)));  
+int upperBits(int n) {
+    int temp = !n;
+    int num = ~temp + 1;              
+    int max = 1 << 31;
+    return ~num & (max >> (n+(~0)));  
 }
 /* 
  * bitMatch - Create mask indicating which bits in x match those in y
@@ -225,8 +227,12 @@ int upperBits(int n) {
  *   Max ops: 14
  *   Rating: 1
  */
-int bitMatch(int x, int y) { // TODO
-  return (~(~x&y)) & (~(x & (~y)));
+int bitMatch(int x, int y) { 
+    // int t1 = ~(~x&y);
+    // int t2 = ~(x&~y);
+    // int t3 = t1 & t2;
+    // return t3;
+    return (~(~x&y)) & (~(x & (~y)));
 }
 /* 
  * bitOr - x|y using only ~ and & 
@@ -236,7 +242,7 @@ int bitMatch(int x, int y) { // TODO
  *   Rating: 1
  */
 int bitOr(int x, int y) {
-  return ~((~x) & (~y));
+    return ~(~x&~y);
 }
 /* 
  * absVal - absolute value of x
@@ -246,8 +252,13 @@ int bitOr(int x, int y) {
  *   Max ops: 10
  *   Rating: 4
  */
-int absVal(int x) { 
-  return (x^(x>>31))+((x>>31)&1);
+int absVal(int x) {
+   // 原码转补码：除符号位取反+1
+   // 补码转原码：除符号位取反+1
+   //1010^1111+1111&0001;
+   //0101+0001
+   //0110 
+    return (x^(x>>31))+((x>>31)&1);
 }
 /* 
  * logicalNeg - implement the ! operator, using all of 
@@ -258,7 +269,11 @@ int absVal(int x) {
  *   Rating: 4 
  */
 int logicalNeg(int x) {
-  return ((x | (~x+1)) >> 31) + 1;   
+  // ~x+1 取补码
+  // 0的补码也是0
+  // 最小数的补码也是本身
+  // return ((x | (~x+1)) >> 31) + 1;   
+    return ~(x|(~x+1))>>31&1
 }
 /*
  * bitParity - returns 1 if x contains an odd number of 0's
@@ -268,12 +283,16 @@ int logicalNeg(int x) {
  *   Rating: 4
  */
 int bitParity(int x) { 
+    //10101010
+	//00001010
+	//00000010
+	//00000001
     x ^= x>>16;
 	x ^= x>>8;
 	x ^= x>>4;
 	x ^= x>>2;
 	x ^= x>>1;
-  return x&1;
+    return x&1;
 }
 /* 
  * byteSwap - swaps the nth byte and the mth byte
@@ -284,12 +303,15 @@ int bitParity(int x) {
  *  Max ops: 25
  *  Rating: 2
  */
-int byteSwap(int x, int n, int m) { // TODO
-  int x1 = (x >> (n<<3)) & 0xff;
-  int x2 = (x >> (m<<3)) & 0xff;
-  int xor = x1 ^ x2;
-  xor = (xor << (n<<3)) | (xor << (m<<3));
-  return x ^ xor;
+int byteSwap(int x, int n, int m) { 
+  	// 0001 0010 0011 0100 0101 0110 0111 1000
+	// 1    2    3    4    5    6    7    8
+	//                               1111 1111
+    int x1 = (x >> (n<<3)) & 0xff;
+    int x2 = (x >> (m<<3)) & 0xff;
+    int xor = x1 ^ x2;
+    xor = (xor << (n<<3)) | (xor << (m<<3));
+    return x ^ xor;
 
 }
 /* 
@@ -301,7 +323,7 @@ int byteSwap(int x, int n, int m) { // TODO
  *   Rating: 2
  */
 int getByte(int x, int n) {
-  return (x>>(n<<3))&0xff;
+    return (x>>(n<<3))&0xff;
 }
 /* 
  * isGreater - if x > y  then return 1, else return 0 
@@ -314,7 +336,7 @@ int isGreater(int x, int y) {
     int sign_ = ((~x&y)>>31)&1;
 	int mark_ = ~((x^y)>>31);
 	int equl_ = !!(x^y);
-  return sign_ | ((mark_)&(~(x+~y+1))>>31&equl_);
+    return sign_ | ((mark_)&(~(x+~y+1))>>31&equl_);
 }
 /* 
  * isNegative - return 1 if x < 0, return 0 otherwise 
@@ -324,7 +346,7 @@ int isGreater(int x, int y) {
  *   Rating: 2
  */
 int isNegative(int x) {
-  return ((x>>31)&1);
+    return ((x>>31)&1);
 }
 /*
  * isPower2 - returns 1 if x is a power of 2, and 0 otherwise
@@ -335,8 +357,8 @@ int isNegative(int x) {
  *   Rating: 4
  */
 int isPower2(int x) {
-  int ret = ((!(x&(x+~0)))&((~(x>>31)&(!!x))));
-  return ret;
+    int ret = ((!(x&(x+~0)))&((~(x>>31)&(!!x))));
+    return ret;
 }
 /* 
  * addOK - Determine if can compute x+y without overflow
@@ -347,7 +369,7 @@ int isPower2(int x) {
  *   Rating: 3
  */
 int addOK(int x, int y) {
-  return (((x^y)>>31)|~(((x+y)^x)>>31))&1;
+    return (((x^y)>>31)|~(((x+y)^x)>>31))&1;
 }
 /* 
  * subtractionOK - Determine if can compute x-y without overflow
@@ -370,10 +392,10 @@ int subtractionOK(int x, int y) {
  *   Rating: 2
  */
 int oddBits(void) { 
-  int x = 0xaa;
+    int x = 0xaa;
 	x |= x << 8;
 	x |= x << 16;
-  return x;
+    return x;
 }
 /* 
  * replaceByte(x,n,c) - Replace byte n in x with c
@@ -385,9 +407,9 @@ int oddBits(void) {
  *   Rating: 3
  */
 int replaceByte(int x, int n, int c) { 
-  int mask_ = 0xff << (n<<3);
+    int mask_ = 0xff << (n<<3);
 	c <<= (n<<3);
-  return (x&(~mask_))|c;
+    return (x&(~mask_))|c;
 }
 /* 
  * rotateLeft - Rotate x to the left by n
@@ -398,7 +420,7 @@ int replaceByte(int x, int n, int c) {
  *   Rating: 3 
  */
 int rotateLeft(int x, int n) { 
-  int mask = (~0) + (1 << n);
+    int mask = (~0) + (1 << n);
 	int r = (x >>(32+(~n)+1))&mask;
 	return ((x<<n)&(~mask))|r;
 }
@@ -414,8 +436,8 @@ int rotateLeft(int x, int n) {
  *   Rating: 2
  */
 unsigned floatAbsVal(unsigned uf) { 
-  if((uf&0x7f800000)>>23 == 255 && uf << 9) return uf;
-  return uf & 0x7fffffff;
+    if((uf&0x7f800000)>>23 == 255 && uf << 9) return uf;
+    return uf & 0x7fffffff;
 }
 /* 
  * floatIsEqual - Compute f == g for floating point arguments f and g.
@@ -429,7 +451,7 @@ unsigned floatAbsVal(unsigned uf) {
  *   Rating: 2
  */
 int floatIsEqual(unsigned uf, unsigned ug) { 
-  if(!(uf&0x7fffffff)&&!(ug&0x7fffffff)) return 1;
+    if(!(uf&0x7fffffff)&&!(ug&0x7fffffff)) return 1;
 	if((uf&0x7fffffff) > 0x7f800000) return 0;
 	if((ug&0x7fffffff) > 0x7f800000) return 0;
 	return uf == ug;
