@@ -10,6 +10,6 @@
 7. lab7 malloclab
 8. lab8 proxylab
 
-## Linux_C_C++ 存放自己跟着牛客Linux做的笔记
+## Linux_C_C++ 笔记
 
-## test_code 存放自己在操作过程中的测试代码笔记(无用)
+## test_code 测试代码(无用)
